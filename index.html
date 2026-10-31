@@ -198,7 +198,7 @@
         <h1>Call every stop on your route with one tap.</h1>
         <p class="lead">RouteMate puts your stops on a map. Tap a stop to see who's waiting there, then tap the green button to call them. No paper lists, no typing numbers while you drive.</p>
         <div class="cta">
-          <a class="btn btn-primary js-download" href="https://github.com/__REPO__/releases/latest/download/RouteMate.apk">
+          <a class="btn btn-primary js-download" href="https://github.com/freddy-daniel/routemate-site/releases/latest/download/RouteMate.apk">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></svg>
             Download for Android
           </a>
@@ -326,7 +326,7 @@
         <div>
           <h2>Install on Android</h2>
           <p class="section-lead">RouteMate is downloaded directly from this site rather than the Play Store, so Android asks you to allow the install once.</p>
-          <a class="btn btn-primary js-download" href="https://github.com/__REPO__/releases/latest/download/RouteMate.apk">
+          <a class="btn btn-primary js-download" href="https://github.com/freddy-daniel/routemate-site/releases/latest/download/RouteMate.apk">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></svg>
             Download RouteMate.apk
           </a>
@@ -379,7 +379,7 @@
         <h2>Put your route on the map today</h2>
         <p class="section-lead" style="margin-left:auto;margin-right:auto">Free for Android. Takes a minute to set up.</p>
         <div class="cta">
-          <a class="btn btn-primary js-download" href="https://github.com/__REPO__/releases/latest/download/RouteMate.apk">
+          <a class="btn btn-primary js-download" href="https://github.com/freddy-daniel/routemate-site/releases/latest/download/RouteMate.apk">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></svg>
             Download for Android
           </a>
@@ -391,14 +391,14 @@
   <footer>
     <div class="wrap">
       <span>© <span id="year">2026</span> RouteMate</span>
-      <a href="https://github.com/__REPO__/releases">All releases</a>
+      <a href="https://github.com/freddy-daniel/routemate-site/releases">All releases</a>
     </div>
   </footer>
 
   <script>
     // Show the latest version and size next to the download buttons.
     (function () {
-      var repo = '__REPO__';
+      var repo = 'freddy-daniel/routemate-site';
       document.getElementById('year').textContent = new Date().getFullYear();
       fetch('https://api.github.com/repos/' + repo + '/releases/latest')
         .then(function (r) { return r.ok ? r.json() : null; })

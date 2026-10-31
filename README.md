@@ -11,5 +11,5 @@ Landing page and Android downloads for RouteMate, a map-first app that lets driv
 2. Create a release here with the APK named exactly `RouteMate.apk`:
 
    ```bash
-   gh release create v1.0.1 RouteMate.apk --repo <owner>/routemate-site --title "RouteMate 1.0.1" --notes "What changed"
+   gh release create v1.0.1 RouteMate.apk --repo freddy-daniel/routemate-site --title "RouteMate 1.0.1" --notes "What changed"
    ```
