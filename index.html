@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RouteMate – Call every stop with one tap</title>
+  <meta name="description" content="RouteMate puts every stop of your route on a map. Tap a stop to see who's there and call them with one tap. For school buses, employee cabs and couriers.">
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <meta property="og:title" content="RouteMate – Call every stop with one tap">
+  <meta property="og:description" content="Every stop on a map. Every person one tap away. Free for Android.">
+  <style>
+    :root {
+      --primary: #1F5FD1;
+      --primary-dark: #174BA8;
+      --primary-soft: #E8EFFC;
+      --call: #16884A;
+      --call-soft: #E7F6EE;
+      --text: #14171F;
+      --muted: #5F6675;
+      --border: #E3E6EC;
+      --surface: #F4F6F9;
+      --bg: #FFFFFF;
+      --radius: 18px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary: #5B8CF0;
+        --primary-dark: #7AA2F5;
+        --primary-soft: #1B2740;
+        --call: #2FB36A;
+        --call-soft: #14301F;
+        --text: #EEF1F6;
+        --muted: #A3AAB8;
+        --border: #2A303C;
+        --surface: #171B23;
+        --bg: #0E1117;
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--primary); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+    /* Header */
+    header { border-bottom: 1px solid var(--border); }
+    .nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; color: var(--text); text-decoration: none; }
+    .brand img { width: 32px; height: 32px; }
+    .nav-links { display: flex; gap: 22px; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 15px; }
+    .nav-links a:hover { color: var(--text); }
+    @media (max-width: 640px) { .nav-links { display: none; } }
+
+    /* Hero */
+    .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; padding-top: 64px; padding-bottom: 72px; }
+    .hero > * { min-width: 0; }
+    @media (max-width: 860px) { .hero { grid-template-columns: 1fr; padding-top: 40px; padding-bottom: 56px; gap: 40px; } }
+    .eyebrow { display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--primary); background: var(--primary-soft); padding: 6px 12px; border-radius: 999px; }
+    h1 { font-size: clamp(34px, 5.4vw, 54px); line-height: 1.08; letter-spacing: -.02em; margin: 18px 0 16px; }
+    .lead { font-size: 19px; color: var(--muted); max-width: 34em; margin: 0 0 28px; }
+    .cta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 15px 24px; border-radius: 14px;
+      font-weight: 700; font-size: 17px; text-decoration: none;
+      transition: transform .12s ease, background .12s ease;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 6px 20px rgba(31,95,209,.28); }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-ghost { color: var(--primary); border: 1.5px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--primary); }
+    .btn svg { width: 22px; height: 22px; flex: none; }
+    .release { font-size: 14px; color: var(--muted); margin-top: 14px; min-height: 1.5em; }
+
+    /* Phone mockup */
+    .phone {
+      width: min(320px, 82vw); aspect-ratio: 9 / 18.5; margin: 0 auto;
+      border-radius: 42px; padding: 12px; background: #11151C;
+      box-shadow: 0 30px 60px rgba(20,23,31,.25), inset 0 0 0 2px #2A2F3A;
+    }
+    .screen { position: relative; width: 100%; height: 100%; border-radius: 32px; overflow: hidden; background: #E9EEF3; }
+    .map { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .chip {
+      position: absolute; top: 14px; left: 12px; right: 12px;
+      background: #fff; border-radius: 12px; padding: 9px 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.15); color: #14171F;
+    }
+    .chip b { display: block; font-size: 13px; }
+    .chip span { font-size: 11px; color: #5F6675; }
+    .sheet {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      background: #fff; border-radius: 20px 20px 0 0; padding: 10px 14px 14px;
+      box-shadow: 0 -4px 18px rgba(0,0,0,.14); color: #14171F;
+    }
+    .grab { width: 36px; height: 4px; border-radius: 2px; background: #D5D9E0; margin: 0 auto 10px; }
+    .sheet-head { display: flex; align-items: center; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid #E3E6EC; }
+    .num { width: 26px; height: 26px; border-radius: 50%; background: #1F5FD1; color: #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; flex: none; }
+    .sheet-head b { font-size: 14px; display: block; }
+    .sheet-head span { font-size: 11px; color: #5F6675; }
+    .person { display: flex; align-items: center; gap: 9px; padding: 8px 0; }
+    .person + .person { border-top: 1px solid #EEF0F4; }
+    .avatar { width: 30px; height: 30px; border-radius: 50%; background: #E8EFFC; color: #1F5FD1; font-size: 11px; font-weight: 800; display: grid; place-items: center; flex: none; }
+    .person .who { flex: 1; min-width: 0; }
+    .person b { font-size: 13px; display: block; }
+    .person span { font-size: 11px; color: #5F6675; }
+    .call { width: 36px; height: 36px; border-radius: 50%; background: #16884A; display: grid; place-items: center; flex: none; animation: pulse 2.4s ease-in-out infinite; }
+    .call svg { width: 17px; height: 17px; }
+    .person + .person .call { animation: none; }
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(22,136,74,.45); } 50% { box-shadow: 0 0 0 8px rgba(22,136,74,0); } }
+    @media (prefers-reduced-motion: reduce) { .call { animation: none; } }
+
+    /* Sections */
+    section { padding: 72px 0; }
+    section.alt { background: var(--surface); }
+    h2 { font-size: clamp(26px, 3.6vw, 36px); letter-spacing: -.01em; line-height: 1.15; margin: 0 0 10px; }
+    .section-lead { color: var(--muted); font-size: 18px; margin: 0 0 36px; max-width: 40em; }
+
+    .problem { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 760px) { .problem { grid-template-columns: 1fr; } }
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+    section.alt .card { border-color: transparent; }
+    .card h3 { margin: 0 0 8px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); }
+    .before h3 { color: var(--muted); }
+    .after { border-color: var(--primary) !important; }
+
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    @media (max-width: 900px) { .features { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .features { grid-template-columns: 1fr; } }
+    .icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 14px; background: var(--primary-soft); color: var(--primary); }
+    .icon.green { background: var(--call-soft); color: var(--call); }
+    .icon svg { width: 22px; height: 22px; }
+
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; counter-reset: step; }
+    @media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
+    .step { position: relative; padding-top: 56px; }
+    .step::before {
+      counter-increment: step; content: counter(step);
+      position: absolute; top: 18px; left: 24px;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--primary); color: #fff; font-weight: 800; display: grid; place-items: center; font-size: 15px;
+    }
+
+    .install { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+    @media (max-width: 760px) { .install { grid-template-columns: 1fr; } }
+    ol.howto { margin: 0; padding: 0; list-style: none; counter-reset: i; }
+    ol.howto li { counter-increment: i; position: relative; padding: 0 0 18px 44px; }
+    ol.howto li::before {
+      content: counter(i); position: absolute; left: 0; top: 0;
+      width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--primary);
+      color: var(--primary); font-weight: 800; display: grid; place-items: center; font-size: 14px;
+    }
+    ol.howto b { display: block; }
+    ol.howto span { color: var(--muted); }
+    .note { font-size: 15px; color: var(--muted); background: var(--surface); border-radius: 14px; padding: 16px 18px; margin-top: 8px; }
+    section.alt .note { background: var(--bg); }
+
+    details { border-bottom: 1px solid var(--border); padding: 16px 0; }
+    summary { cursor: pointer; font-weight: 700; font-size: 17px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; color: var(--primary); font-size: 22px; line-height: 1; }
+    details[open] summary::after { content: "–"; }
+    details p { color: var(--muted); margin: 10px 0 0; }
+
+    .final { text-align: center; }
+    .final .cta { justify-content: center; }
+    footer { border-top: 1px solid var(--border); padding: 28px 0; color: var(--muted); font-size: 14px; }
+    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+    footer a { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="#"><img src="logo.svg" alt="">RouteMate</a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#install">Install</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap hero">
+      <div>
+        <span class="eyebrow">For school buses, cabs &amp; couriers</span>
+        <h1>Call every stop on your route with one tap.</h1>
+        <p class="lead">RouteMate puts your stops on a map. Tap a stop to see who's waiting there, then tap the green button to call them. No paper lists, no typing numbers while you drive.</p>
+        <div class="cta">
+          <a class="btn btn-primary js-download" href="https://github.com/__REPO__/releases/latest/download/RouteMate.apk">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></svg>
+            Download for Android
+          </a>
+          <a class="btn btn-ghost" href="#install">How to install</a>
+        </div>
+        <p class="release js-release">Free · No account needed</p>
+      </div>
+
+      <div class="phone" aria-label="RouteMate showing a stop with two people and call buttons" role="img">
+        <div class="screen">
+          <svg class="map" viewBox="0 0 300 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="300" height="600" fill="#E9EEF3"/>
+            <path d="M-20 120 L320 90 M-20 260 L320 300 M80 -20 L120 620 M220 -20 L190 620 M-20 420 L320 380" stroke="#fff" stroke-width="14"/>
+            <path d="M-20 190 L320 180 M150 -20 L160 620" stroke="#fff" stroke-width="7"/>
+            <rect x="130" y="320" width="50" height="40" rx="6" fill="#D7E9D7"/>
+            <rect x="20" y="300" width="45" height="70" rx="6" fill="#D7E9D7"/>
+            <path d="M52 470 C 80 400, 100 360, 118 300 S 170 200, 205 150" fill="none" stroke="#1F5FD1" stroke-width="6" stroke-linecap="round"/>
+            <path d="M205 150 L 232 102" stroke="#1F5FD1" stroke-width="2.5" stroke-dasharray="6 6"/>
+            <g transform="translate(52 470)"><circle r="12" fill="#fff" stroke="#8A919E" stroke-width="3"/><text y="5" text-anchor="middle" font-size="13" font-weight="800" fill="#8A919E" font-family="sans-serif">✓</text></g>
+            <g transform="translate(118 296)"><circle r="13" fill="#1F5FD1" stroke="#fff" stroke-width="3"/><text y="5" text-anchor="middle" font-size="13" font-weight="800" fill="#fff" font-family="sans-serif">2</text></g>
+            <g transform="translate(232 96)"><circle r="12" fill="#fff" stroke="#1F5FD1" stroke-width="3"/><text y="5" text-anchor="middle" font-size="13" font-weight="800" fill="#1F5FD1" font-family="sans-serif">3</text></g>
+            <circle cx="205" cy="150" r="9" fill="#1F5FD1" stroke="#fff" stroke-width="3"/>
+          </svg>
+          <div class="chip"><b>School Bus 12</b><span>Ride on · 1 of 3 stops · 2.4 km</span></div>
+          <div class="sheet">
+            <div class="grab"></div>
+            <div class="sheet-head">
+              <div class="num">2</div>
+              <div><b>Maple Ave &amp; 38th St</b><span>2 people</span></div>
+            </div>
+            <div class="person">
+              <div class="avatar">PS</div>
+              <div class="who"><b>Priya Shah</b><span>Parent of Arjun</span></div>
+              <span class="call"><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg></span>
+            </div>
+            <div class="person">
+              <div class="avatar">TB</div>
+              <div class="who"><b>Tom Becker</b><span>Parent of Lily</span></div>
+              <span class="call"><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="alt">
+      <div class="wrap">
+        <h2>Stop hunting for numbers</h2>
+        <p class="section-lead">Drivers and attendants still flip through paper lists and dial each number by hand, at every stop, often while the engine is running.</p>
+        <div class="problem">
+          <div class="card before">
+            <h3>Before</h3>
+            <p>Find the stop on a printed sheet, scan for the right names, read out a number and type it in. Repeat for every parent, passenger or customer.</p>
+          </div>
+          <div class="card after">
+            <h3>With RouteMate</h3>
+            <p>The map shows where you are and your next stop. Tap the stop, tap the green button, and the phone is already dialing.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="wrap">
+        <h2>Everything a route needs, nothing it doesn't</h2>
+        <p class="section-lead">Built to be used with one hand, at a glance.</p>
+        <div class="features">
+          <div class="card">
+            <div class="icon green"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg></div>
+            <h3>One-tap calling</h3>
+            <p>Every person has a big green call button that opens your phone's dialer with the number filled in.</p>
+          </div>
+          <div class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></div>
+            <h3>Stops on a map</h3>
+            <p>Numbered pins for every stop. Place them on the map, or add each one as you reach it on your first drive.</p>
+          </div>
+          <div class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></div>
+            <h3>Ride mode</h3>
+            <p>The map follows you like a navigation app, draws your path, shows the next stop and ticks off stops as you reach them.</p>
+          </div>
+          <div class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6"/></svg></div>
+            <h3>Add from your contacts</h3>
+            <p>Pick people straight from your phone's address book. If someone has several numbers, choose the right one.</p>
+          </div>
+          <div class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M3.5 9.5h17M3.5 15h17M9.5 9.5v11"/></svg></div>
+            <h3>Import a Google Sheet</h3>
+            <p>Bring in a whole route's list at once. Tell RouteMate which column is the stop, name and phone, and it does the matching.</p>
+          </div>
+          <div class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg></div>
+            <h3>Private by design</h3>
+            <p>Routes and phone numbers stay on your phone. No account, no sign-up, no server holding your people's details.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="alt">
+      <div class="wrap">
+        <h2>Ready in three steps</h2>
+        <p class="section-lead">The app walks you through it the first time you open it.</p>
+        <div class="steps">
+          <div class="card step">
+            <h3>Create a route</h3>
+            <p>Give it a name like “School Bus 12” or “Morning deliveries”.</p>
+          </div>
+          <div class="card step">
+            <h3>Add your stops</h3>
+            <p>Drop them on the map, or start a ride and tap <b>Add stop here</b> at each one.</p>
+          </div>
+          <div class="card step">
+            <h3>Add people</h3>
+            <p>Pick them from your contacts, or import your existing list from Google Sheets.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="install">
+      <div class="wrap install">
+        <div>
+          <h2>Install on Android</h2>
+          <p class="section-lead">RouteMate is downloaded directly from this site rather than the Play Store, so Android asks you to allow the install once.</p>
+          <a class="btn btn-primary js-download" href="https://github.com/__REPO__/releases/latest/download/RouteMate.apk">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></svg>
+            Download RouteMate.apk
+          </a>
+          <p class="release js-release"></p>
+        </div>
+        <div>
+          <ol class="howto">
+            <li><b>Download the app</b><span>Open this page on your Android phone and tap Download.</span></li>
+            <li><b>Open the file</b><span>When the download finishes, tap the notification or find RouteMate.apk in your Downloads.</span></li>
+            <li><b>Allow the install</b><span>If Android says installs from this source aren't allowed, tap Settings, turn on “Allow from this source”, and go back.</span></li>
+            <li><b>Tap Install</b><span>Then open RouteMate and follow the three setup steps.</span></li>
+          </ol>
+          <p class="note">To update, download and install the newest version the same way. Your routes and people stay on the phone.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="alt">
+      <div class="wrap">
+        <h2>Questions</h2>
+        <details>
+          <summary>Is RouteMate free?</summary>
+          <p>Yes. There's no account, subscription or in-app purchase.</p>
+        </details>
+        <details>
+          <summary>Is there an iPhone version?</summary>
+          <p>Not yet. RouteMate is available for Android phones for now.</p>
+        </details>
+        <details>
+          <summary>Where are my contacts and routes stored?</summary>
+          <p>Only on your phone. RouteMate doesn't upload your routes, stops or phone numbers anywhere. If you import a Google Sheet, the app downloads it directly from Google.</p>
+        </details>
+        <details>
+          <summary>Does it track my location all the time?</summary>
+          <p>No. Location is used only while the app is open: to show where you are, and during a ride you start yourself. Ending the ride stops tracking.</p>
+        </details>
+        <details>
+          <summary>What does my Google Sheet need to look like?</summary>
+          <p>Any sheet with a column for the stop, the person's name and their phone number. The column titles can be anything; you pick them the first time you import. Share the sheet as “Anyone with the link” so the app can read it.</p>
+        </details>
+        <details>
+          <summary>Why does Android warn me when installing?</summary>
+          <p>Android shows that message for any app that isn't installed from the Play Store. It's a one-time setting for the app you downloaded with, usually your browser.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="final">
+      <div class="wrap">
+        <h2>Put your route on the map today</h2>
+        <p class="section-lead" style="margin-left:auto;margin-right:auto">Free for Android. Takes a minute to set up.</p>
+        <div class="cta">
+          <a class="btn btn-primary js-download" href="https://github.com/__REPO__/releases/latest/download/RouteMate.apk">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></svg>
+            Download for Android
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© <span id="year">2026</span> RouteMate</span>
+      <a href="https://github.com/__REPO__/releases">All releases</a>
+    </div>
+  </footer>
+
+  <script>
+    // Show the latest version and size next to the download buttons.
+    (function () {
+      var repo = '__REPO__';
+      document.getElementById('year').textContent = new Date().getFullYear();
+      fetch('https://api.github.com/repos/' + repo + '/releases/latest')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (release) {
+          if (!release) return;
+          var apk = (release.assets || []).filter(function (a) { return /\.apk$/i.test(a.name); })[0];
+          if (!apk) return;
+          var size = (apk.size / 1048576).toFixed(0) + ' MB';
+          var date = new Date(release.published_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+          var text = 'Version ' + release.tag_name.replace(/^v/, '') + ' · ' + size + ' · ' + date;
+          document.querySelectorAll('.js-release').forEach(function (el) { el.textContent = text; });
+          document.querySelectorAll('.js-download').forEach(function (el) { el.href = apk.browser_download_url; });
+        })
+        .catch(function () {});
+    })();
+  </script>
+</body>
+</html>
